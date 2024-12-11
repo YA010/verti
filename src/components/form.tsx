@@ -1,40 +1,89 @@
 import React, { useState, ChangeEvent } from 'react';
 import { FormData } from '../models/Project';
-
-interface FormComponentProps {
+import "../css/form.css"
+/**
+ * Interface defining the props for the FormComponent.
+ */
+interface FormProps {
+    /**
+     * This function is to be executed when the form is submitted.
+     * @param data < The form data submitted by the user.
+     */
     onFormSubmit: (data: FormData) => void;
 }
 
-const FormComponent: React.FC<FormComponentProps> = ({ onFormSubmit }) => {
-    const [formData, setFormData] = useState<FormData>({
+/**
+ * 
+ * 
+ * This is the main form functionality that allows users to input project details and submits the data 
+ * to a parent component using a callback function. It includes validation to 
+ * ensure all required fields are filled.
+ */
+const FormComponent: React.FC<FormProps> = ({ onFormSubmit }) => {
+   
+    const [formData, setFormData] = useState<FormData>({ 
         name: '',
         description: '',
         date: '',
-        selectedOption: 'Incomplete',
     });
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
+    
+    const [formErrors, setFormErrors] = useState<string[]>([]); 
+
+    /**
+     * Event handler for changes in the form input fields.
+     * 
+     * Updates the form data state with the new value and removes 
+     * any previous errors associated with the changed field.
+     * 
+     * @param event The change event object.
+     */
+    const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        const { name, value } = event.target;
+
+        setFormData({
+            ...formData,
             [name]: value,
-        }));
+        });
+
+        // Remove error for the changed field
+        setFormErrors(prevErrors => prevErrors.filter(error => 
+            !error.startsWith(`${name}:`) 
+        ));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!formData.name || !formData.description || !formData.date || !formData.selectedOption) {
-            alert('Please fill all fields.');
+    /**
+     * Event handler for form submission.
+     * 
+     * Performs form validation, updates error state, and calls the 
+     * onFormSubmit prop with the form data if validation passes.
+     * 
+     * @param event The submit event object.
+     */
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+        const errors: string[] = [];
+        if (!formData.name) errors.push('Name: This field is required.');
+        if (!formData.description) errors.push('Description: This field is required.');
+        if (!formData.date) errors.push('Date: This field is required.');
+
+        setFormErrors(errors);
+
+        if (errors.length > 0) {
             return;
         }
         onFormSubmit(formData);
     };
 
+    /**
+     *  the form structure and input elements.
+     */
     return (
-        <div className="bg-green-500 p-8 rounded-lg shadow-md w-96 mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-4"> {/* Added spacing */}
+        <div className="form-container">
+            <h2 className='formtitle'>Add a new project</h2>
+            <form onSubmit={handleSubmit} className="form">
                 <div>
-                    <label htmlFor="name" className="block text-green-700 font-bold mb-2">
+                    <label htmlFor="name" className="label">
                         Name:
                     </label>
                     <input
@@ -44,11 +93,13 @@ const FormComponent: React.FC<FormComponentProps> = ({ onFormSubmit }) => {
                         placeholder="Name"
                         value={formData.name}
                         onChange={handleChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="input"
+                        
                     />
+                    {formErrors.find(error => error.startsWith('Name:')) && <div className="error">{formErrors.find(error => error.startsWith('Name:'))?.split(': ')[1]}</div>}
                 </div>
                 <div>
-                    <label htmlFor="description" className="block text-gray-700 font-bold mb-2">
+                    <label htmlFor="description" className="label">
                         Description:
                     </label>
                     <input
@@ -57,11 +108,13 @@ const FormComponent: React.FC<FormComponentProps> = ({ onFormSubmit }) => {
                         placeholder="Description"
                         value={formData.description}
                         onChange={handleChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="input"
+                        
                     />
+                    {formErrors.find(error => error.startsWith('Description:')) && <div className="error">{formErrors.find(error => error.startsWith('Description:'))?.split(': ')[1]}</div>}
                 </div>
                 <div>
-                    <label htmlFor="date" className="block text-gray-700 font-bold mb-2">
+                    <label htmlFor="date" className="label">
                         Date:
                     </label>
                     <input
@@ -70,28 +123,16 @@ const FormComponent: React.FC<FormComponentProps> = ({ onFormSubmit }) => {
                         name="date"
                         value={formData.date}
                         onChange={handleChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="input"
+                        
                     />
+                    {formErrors.find(error => error.startsWith('Date:')) && <div className="error">{formErrors.find(error => error.startsWith('Date:'))?.split(': ')[1]}</div>}
                 </div>
-                <div>
-                    <label htmlFor="selectedOption" className="block text-gray-700 font-bold mb-2">
-                        Select Option:
-                    </label>
-                    <select
-                        id="selectedOption"
-                        name="selectedOption"
-                        value={formData.selectedOption}
-                        onChange={handleChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    >
-                        <option value="Complete">Complete</option>
-                        <option value="Incomplete">Incomplete</option>
-                    </select>
-                </div>
-                <div className="flex items-center justify-between">
+                
+                <div className="button-container">
                     <button
                         type="submit"
-                        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="submit-button"
                     >
                         Submit
                     </button>
