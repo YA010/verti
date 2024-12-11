@@ -41,9 +41,10 @@ const DisplayComponent: React.FC<DisplayComponentProps> = ({ data, onBack }) => 
                 <p className="project-data-item">Name: {data.name}</p>
                 <p className="project-data-item">Description: {data.description}</p>
                 <p className="project-data-item">Date: {data.date}</p>
+                <p className="project-data-item">You said this form is: {data.selectedOption}</p>
                 <div>
                     <label htmlFor="selectedOption" className="label">
-                        Select Option:
+                        Project status:
                     </label>
                     <select
                         id="selectedOption"

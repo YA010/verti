@@ -25,6 +25,7 @@ const FormComponent: React.FC<FormProps> = ({ onFormSubmit }) => {
         name: '',
         description: '',
         date: '',
+        selectedOption: 'Its amazing :)', 
     });
 
     
@@ -38,7 +39,7 @@ const FormComponent: React.FC<FormProps> = ({ onFormSubmit }) => {
      * 
      * @param event The change event object.
      */
-    const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
         const { name, value } = event.target;
 
         setFormData({
@@ -128,7 +129,21 @@ const FormComponent: React.FC<FormProps> = ({ onFormSubmit }) => {
                     />
                     {formErrors.find(error => error.startsWith('Date:')) && <div className="error">{formErrors.find(error => error.startsWith('Date:'))?.split(': ')[1]}</div>}
                 </div>
-                
+                <div>
+                    <label htmlFor="selectedOption" className="label">
+                        is this form:
+                    </label>
+                    <select
+                        id="selectedOption"
+                        name="selectedOption"
+                        className="input"
+                        value={formData.selectedOption} 
+                        onChange={handleChange}
+                    >
+                        <option value="Its amazing :)">its amazing</option>
+                        <option value="Meh its ok">Meh its ok</option>
+                    </select>
+                </div>
                 <div className="button-container">
                     <button
                         type="submit"
